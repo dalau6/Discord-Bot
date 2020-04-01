@@ -139,9 +139,20 @@ async function onDonation(
       : null;
     const guildMember = guild ? guild.members.get(user.id) : null;
 
-    return await updateMemberRoleForDonation(guild, guildMember, amount);
+    return await Promise.all([
+      updateMemberRoleForDonation(guild, guildMember, amount),
+      logDonation(
+        guildMember,
+        amount,
+        paymentSource,
+        paymentId,
+        senderName,
+        message,
+        timestamp
+      )
+    ]);
   } catch (err) {
-    console.warn('Error handling donation event.');
+    console.warn('Error updating donor role and logging donation');
     console.warn(err);
   }
 }
