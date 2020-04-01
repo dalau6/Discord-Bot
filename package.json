@@ -1,0 +1,25 @@
+{
+  "name": "Discord-Bot",
+  "version": "1.0.0",
+  "description": "Discord Chatbot Development",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dalau6/Discord-Bot.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dalau6/Discord-Bot/issues"
+  },
+  "homepage": "https://github.com/dalau6/Discord-Bot#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "eris": "^0.11.2",
+    "express": "^4.17.1"
+  }
+}
