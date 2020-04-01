@@ -146,5 +146,43 @@ async function onDonation(
   }
 }
 
+function logDonation(
+  member,
+  donationAmount,
+  paymentSource,
+  paymentId,
+  senderName,
+  message,
+  timestamp
+) {
+  const isKnownMember = !!member;
+  const memberName = isKnownMember
+    ? `${member.username}#${member.discriminator}`
+    : 'Unknown';
+  const embedColor = isKnownMember ? 0x00ff00 : 0xff0000;
+
+  const logMessage = {
+    embed: {
+      title: 'Donation received',
+      color: embedColor,
+      timestamp: timestamp,
+      fields: [
+        { name: 'Payment Source', value: paymentSource, inline: true },
+        { name: 'Payment ID', value: paymentId, inline: true },
+        { name: 'Sender', value: senderName, inline: true },
+        { name: 'Donor Discord name', value: memberName, inline: true },
+        {
+          name: 'Donation amount',
+          value: donationAmount.toString(),
+          inline: true
+        },
+        { name: 'Message', value: message, inline: true }
+      ]
+    }
+  };
+
+  bot.createMessage(LOG_CHANNEL_ID, logMessage);
+}
+
 webhookListener.on('donation', onDonation);
 bot.connect();
