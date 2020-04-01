@@ -1,60 +1,71 @@
 const eris = require('eris');
 
 const PREFIX = 'pb!';
+const BOT_OWNER_ID = '123456789';
 
 const bot = new eris.Client('my_token');
 
-const commandHandlerForCommandName = {};
-commandHandlerForCommandName['addpayment'] = (msg, args) => {
-  const mention = args[0];
-  const amount = parseFloat(args[1]);
+const commandForName = {};
+commandForName['addpayment'] = {
+  botOwnerOnly: true,
+  execute: (msg, args) => {
+      const mention = args[0];
+      const amount = parseFloat(args[1]);
 
-  // TODO: Handle invalid command arguments, such as:
-  // 1. No mention or invalid mention.
-  // 2. No amount or invalid amount.
+      // TODO: Handle invalid command arguments, such as:
+      // 1. No mention or invalid mention.
+      // 2. No amount or invalid amount.
 
-  return msg.channel.createMessage(`${mention} paid $${amount.toFixed(2)}`);
+      return msg.channel.createMessage(`${mention} paid $${amount.toFixed(2)}`);
+  },
 };
 
 bot.on('messageCreate', async (msg) => {
-  const content = msg.content;
-
-  // Ignore any messages sent as direct messages.
-  // The bot will only accept commands issued in
-  // a guild.
-  if (!msg.channel.guild) {
-    return;
-  }
-
-  // Ignore any message that doesn't start with the correct prefix.
-  if (!content.startsWith(PREFIX)) {
-      return;
-  }
-
-  // Extract the parts of the command and the command name
-  const parts = content.split(' ').map(s => s.trim()).filter(s => s);
-  const commandName = parts[0].substr(PREFIX.length);
-
-  // Get the appropriate handler for the command, if there is one.
-  const commandHandler = commandHandlerForCommandName[commandName];
-  if (!commandHandler) {
-      return;
-  }
-
-  // Separate the command arguments from the command prefix and command name.
-  const args = parts.slice(1);
-
   try {
+      const content = msg.content;
+
+      // Ignore any messages sent as direct messages.
+      // The bot will only accept commands issued in
+      // a guild.
+      if (!msg.channel.guild) {
+          return;
+      }
+
+      // Ignore any message that doesn't start with the correct prefix.
+      if (!content.startsWith(PREFIX)) {
+          return;
+      }
+
+      // Extract the parts and name of the command
+      const parts = content.split(' ').map(s => s.trim()).filter(s => s);
+      const commandName = parts[0].substr(PREFIX.length);
+
+      // Get the requested command, if there is one.
+      const command = commandForName[commandName];
+      if (!command) {
+          return;
+      }
+
+      // If this command is only for the bot owner, refuse
+      // to execute it for any other user.
+      const authorIsBotOwner = msg.author.id === BOT_OWNER_ID;
+      if (command.botOwnerOnly && !authorIsBotOwner) {
+          return await msg.channel.createMessage('Hey, only my owner can issue that command!');
+      }
+
+      // Separate the command arguments from the command prefix and name.
+      const args = parts.slice(1);
+
       // Execute the command.
-      await commandHandler(msg, args);
+      await command.execute(msg, args);
   } catch (err) {
-      console.warn('Error handling command');
+      console.warn('Error handling message create event');
       console.warn(err);
   }
 });
 
 bot.on('error', err => {
-  console.warn(err);
+ console.warn(err);
 });
 
 bot.connect();
